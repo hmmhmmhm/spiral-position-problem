@@ -1,5 +1,3 @@
-import * as math from "mathjs";
-
 // x^2 + y^2 <= m 인 격자점 개수 계산
 function s(m: number): number {
   if (m < 0) return 0;
