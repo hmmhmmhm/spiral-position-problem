@@ -4,6 +4,7 @@ export interface PixelMapProps {
   gridSize?: number;
   canvasSize?: number;
   padding?: number;
+  gridRange?: number;
   highlightCoordinates?: Array<{
     coord: { x: number; y: number };
     color: string;
@@ -11,11 +12,23 @@ export interface PixelMapProps {
 }
 
 export default function PixelMap({
-  gridSize = 50,
-  canvasSize = 800,
+  gridRange = 7,
   padding = 40,
   highlightCoordinates,
 }: PixelMapProps) {
+  // 그리드 범위에 따라 동적으로 크기 조절
+  const baseGridSize = 50;
+  const baseCanvasSize = 800;
+  
+  // 그리드 범위가 커질수록 각 셀의 크기를 줄임 (정수값 보장)
+  const gridSize = Math.floor(Math.max(30, Math.floor(baseGridSize * (7 / gridRange))));
+  
+  // 캔버스 크기를 그리드 범위에 맞게 조절 (정수값 보장)
+  const canvasSize = Math.floor(Math.max(
+    baseCanvasSize,
+    (gridRange * 2 + 1) * gridSize + padding * 2
+  ));
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // 색상 팔레트
@@ -26,10 +39,12 @@ export default function PixelMap({
   };
 
   const validateCoordinate = (value: number) => {
-    if (!Number.isInteger(value)) {
-      throw new Error("Coordinates must be integer values");
+    // 소수점 처리를 위해 먼저 반올림
+    const roundedValue = Math.round(value);
+    if (Math.abs(roundedValue - value) > 0.0001) {
+      console.warn('Non-integer coordinate was rounded:', value, 'to:', roundedValue);
     }
-    return Math.floor(value);
+    return roundedValue;
   };
 
   const drawArrow = (
@@ -83,9 +98,9 @@ export default function PixelMap({
     canvas.width = canvasSize;
     canvas.height = canvasSize;
 
-    // 중앙점 계산
-    const centerX = validateCoordinate(canvasSize / 2);
-    const centerY = validateCoordinate(canvasSize / 2);
+    // 중앙점 계산 (정수값 보장)
+    const centerX = Math.floor(canvasSize / 2);
+    const centerY = Math.floor(canvasSize / 2);
 
     // 배경색 단색 검정으로 변경 - clearRect로 먼저 초기화
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -101,7 +116,7 @@ export default function PixelMap({
 
     // 패딩을 고려한 실제 드로잉 영역 계산
     const drawableSize = canvasSize - padding * 2;
-    const maxVisibleCoordinate = Math.floor(drawableSize / 2 / gridSize);
+    const maxVisibleCoordinate = gridRange;
 
     // 그리드 라인 렌더링
     ctx.strokeStyle = COLORS.gridLine;
@@ -132,8 +147,8 @@ export default function PixelMap({
     ctx.fillStyle = COLORS.background;
     for (let i = -maxVisibleCoordinate; i <= maxVisibleCoordinate; i++) {
       for (let j = -maxVisibleCoordinate; j <= maxVisibleCoordinate; j++) {
-        const x = validateCoordinate(centerX + i * gridSize - gridSize / 2);
-        const y = validateCoordinate(centerY + j * gridSize - gridSize / 2);
+        const x = Math.floor(centerX + i * gridSize - gridSize / 2);
+        const y = Math.floor(centerY + j * gridSize - gridSize / 2);
         ctx.fillRect(x, y, gridSize - 1, gridSize - 1);
       }
     }
@@ -146,12 +161,12 @@ export default function PixelMap({
       isXAxis: boolean
     ) => {
       if (isXAxis) {
-        const xPos = validateCoordinate(centerX + x * gridSize);
+        const xPos = Math.floor(centerX + x * gridSize);
         ctx.textAlign = "center";
         ctx.textBaseline = "top";
         ctx.fillText(text, xPos, padding + 10);
       } else {
-        const yPos = validateCoordinate(centerY + y * gridSize);
+        const yPos = Math.floor(centerY + y * gridSize);
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
         ctx.fillText(text, padding + 10, yPos);
@@ -172,14 +187,14 @@ export default function PixelMap({
 
     // X축 일반 좌표
     for (let x = -maxVisibleCoordinate; x <= maxVisibleCoordinate; x++) {
-      if (x === -7) continue;
+      if (x === -maxVisibleCoordinate) continue; // 겹치는 지점 제외
       if (highlightedXSet.has(x)) continue;
       renderCoordinateLabel(x, 0, x.toString(), true);
     }
 
     // Y축 일반 좌표
     for (let y = -maxVisibleCoordinate; y <= maxVisibleCoordinate; y++) {
-      if (-y === 7) continue;
+      if (-y === maxVisibleCoordinate) continue; // 겹치는 지점 제외
       // 화면에 표시되는 y값은 -y이므로, 실제 하이라이트된 y값과 비교할 때는 부호를 맞춰줍니다
       if (highlightedYSet.has(-y)) continue;
       renderCoordinateLabel(0, y, (-y).toString(), false);
@@ -189,12 +204,8 @@ export default function PixelMap({
     if (highlightCoordinates) {
       for (let i = 0; i < highlightCoordinates.length; i++) {
         const { coord, color } = highlightCoordinates[i];
-        const x = validateCoordinate(
-          centerX + coord.x * gridSize - gridSize / 2
-        );
-        const y = validateCoordinate(
-          centerY - coord.y * gridSize - gridSize / 2
-        );
+        const x = Math.floor(centerX + coord.x * gridSize - gridSize / 2);
+        const y = Math.floor(centerY - coord.y * gridSize - gridSize / 2);
 
         // 클리핑 영역 설정 (격자 크기)
         ctx.save();
@@ -259,12 +270,8 @@ export default function PixelMap({
 
       for (let i = 0; i < highlightCoordinates.length; i++) {
         const { coord, color } = highlightCoordinates[i];
-        const x = validateCoordinate(
-          centerX + coord.x * gridSize - gridSize / 2
-        );
-        const y = validateCoordinate(
-          centerY - coord.y * gridSize - gridSize / 2
-        );
+        const x = Math.floor(centerX + coord.x * gridSize - gridSize / 2);
+        const y = Math.floor(centerY - coord.y * gridSize - gridSize / 2);
 
         // 이전 좌표와 현재 좌표 사이에 화살표 그리기
         if (i > 0) {
@@ -278,15 +285,25 @@ export default function PixelMap({
         }
       }
     }
-  }, [canvasSize, gridSize, padding, highlightCoordinates]);
+  }, [canvasSize, gridSize, padding, gridRange, highlightCoordinates]);
 
   return (
-    <div className="w-full h-full flex items-center justify-center">
-      <canvas
-        ref={canvasRef}
-        className="border rounded-lg shadow-lg"
-        style={{ maxWidth: "100%", maxHeight: "100%", aspectRatio: "1/1" }}
-      />
+    <div className="w-full h-full flex items-center justify-center overflow-auto">
+      <div style={{ 
+        width: canvasSize, 
+        height: canvasSize,
+        maxWidth: '100%',
+        maxHeight: '100%'
+      }}>
+        <canvas
+          ref={canvasRef}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain'
+          }}
+        />
+      </div>
     </div>
   );
 }
