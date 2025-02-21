@@ -1,7 +1,8 @@
 import { useState } from "react";
 import PixelMap from "./pixel-map";
 import { ScrollArea } from "./ui/scroll-area";
-import { getCoordinates } from "@/lib/circle-coordinates";
+import { getCoordinates } from "@/lib/get-coordinates";
+import { getNFromCoordinates } from "@/lib/get-n-from-coordinates";
 
 const getLayerColor = (layer: number) => {
   // 흰색 기반 (불투명도로 구분)
@@ -100,21 +101,35 @@ export default function CoordinateVisualizer() {
                   className="flex items-center space-x-2 cursor-pointer hover:bg-white/10 rounded px-2 py-1"
                   onMouseEnter={() => setHighlightedCoordinate(n)}
                   onMouseLeave={() => setHighlightedCoordinate(null)}
-                  onClick={() =>
-                    setHighlightedCoordinate(
-                      n === highlightedCoordinate ? null : n
-                    )
-                  }
                 >
                   <div
                     className="w-4 h-4 rounded-full"
-                    style={{
-                      backgroundColor: getCoordinateColor(n),
-                    }}
+                    style={{ backgroundColor: getCoordinateColor(n) }}
                   />
-                  <span className="text-white">
-                    {`${n}: (${getCoordinates(n).x}, ${getCoordinates(n).y})`}
-                  </span>
+                  <div className="text-white">
+                    <span className="font-mono">N={n}</span>
+                    <span className="mx-2">→</span>
+                    <span className="font-mono">
+                      {JSON.stringify(getCoordinates(n))}
+                    </span>
+                    <span className="mx-2">→</span>
+                    <span
+                      className={`font-mono ${
+                        (() => {
+                          const coord = getCoordinates(n);
+                          return getNFromCoordinates(coord.x, coord.y) === n;
+                        })()
+                          ? "text-green-400"
+                          : "text-red-400"
+                      }`}
+                    >
+                      N'=
+                      {(() => {
+                        const coord = getCoordinates(n);
+                        return getNFromCoordinates(coord.x, coord.y);
+                      })()}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
