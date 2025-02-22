@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --config config/vite.config.ts",
-    "build": "tsc -b config/tsconfig.json && vite build --config config/vite.config.ts",
+    "build": "tsc && vite build --config config/vite.config.ts",
     "lint": "eslint . --config config/eslint.config.js",
     "preview": "vite preview --config config/vite.config.ts",
     "test": "jest --config config/jest.config.ts"
