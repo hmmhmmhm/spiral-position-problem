@@ -1,8 +1,7 @@
 import { useState } from "react";
 import PixelMap from "./pixel-map";
 import { ScrollArea } from "./ui/scroll-area";
-import { getCoordinates } from "@/lib/get-coordinates";
-import { getNFromCoordinates } from "@/lib/get-n-from-coordinates";
+import { getCoordinates, getNFromCoordinates } from "@/lib/gcode/spiral";
 
 const getLayerColor = (layer: number) => {
   // 흰색 기반 (불투명도로 구분)
@@ -21,7 +20,7 @@ export default function CoordinateVisualizer() {
   // Grid Range에 따른 최대 좌표값 계산
   const calculateMaxCoordinate = (range: number) => {
     // 각 range에 맞는 적절한 최대값 계산
-    return Math.round((range * 2) * range * 1.225);
+    return Math.round(range * 2 * range * 1.225);
   };
 
   const maxCoordinate = calculateMaxCoordinate(gridRange);

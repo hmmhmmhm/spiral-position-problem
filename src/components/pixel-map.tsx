@@ -19,15 +19,16 @@ export default function PixelMap({
   // 그리드 범위에 따라 동적으로 크기 조절
   const baseGridSize = 50;
   const baseCanvasSize = 800;
-  
+
   // 그리드 범위가 커질수록 각 셀의 크기를 줄임 (정수값 보장)
-  const gridSize = Math.floor(Math.max(30, Math.floor(baseGridSize * (7 / gridRange))));
-  
+  const gridSize = Math.floor(
+    Math.max(30, Math.floor(baseGridSize * (7 / gridRange)))
+  );
+
   // 캔버스 크기를 그리드 범위에 맞게 조절 (정수값 보장)
-  const canvasSize = Math.floor(Math.max(
-    baseCanvasSize,
-    (gridRange * 2 + 1) * gridSize + padding * 2
-  ));
+  const canvasSize = Math.floor(
+    Math.max(baseCanvasSize, (gridRange * 2 + 1) * gridSize + padding * 2)
+  );
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -36,15 +37,6 @@ export default function PixelMap({
     background: "#000000",
     label: "#FFFFFF",
     gridLine: "#FFFFFF",
-  };
-
-  const validateCoordinate = (value: number) => {
-    // 소수점 처리를 위해 먼저 반올림
-    const roundedValue = Math.round(value);
-    if (Math.abs(roundedValue - value) > 0.0001) {
-      console.warn('Non-integer coordinate was rounded:', value, 'to:', roundedValue);
-    }
-    return roundedValue;
   };
 
   const drawArrow = (
@@ -80,7 +72,11 @@ export default function PixelMap({
     ctx.stroke();
   };
 
-  const drawStartPoint = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
+  const drawStartPoint = (
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number
+  ) => {
     ctx.beginPath();
     ctx.arc(x, y, 5, 0, Math.PI * 2);
     ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
@@ -115,7 +111,6 @@ export default function PixelMap({
     ctx.fillRect(0, canvas.height - padding, canvas.width, padding);
 
     // 패딩을 고려한 실제 드로잉 영역 계산
-    const drawableSize = canvasSize - padding * 2;
     const maxVisibleCoordinate = gridRange;
 
     // 그리드 라인 렌더링
@@ -269,9 +264,7 @@ export default function PixelMap({
       }
 
       for (let i = 0; i < highlightCoordinates.length; i++) {
-        const { coord, color } = highlightCoordinates[i];
-        const x = Math.floor(centerX + coord.x * gridSize - gridSize / 2);
-        const y = Math.floor(centerY - coord.y * gridSize - gridSize / 2);
+        const { coord } = highlightCoordinates[i];
 
         // 이전 좌표와 현재 좌표 사이에 화살표 그리기
         if (i > 0) {
@@ -289,18 +282,20 @@ export default function PixelMap({
 
   return (
     <div className="w-full h-full flex items-center justify-center overflow-auto">
-      <div style={{ 
-        width: canvasSize, 
-        height: canvasSize,
-        maxWidth: '100%',
-        maxHeight: '100%'
-      }}>
+      <div
+        style={{
+          width: canvasSize,
+          height: canvasSize,
+          maxWidth: "100%",
+          maxHeight: "100%",
+        }}
+      >
         <canvas
           ref={canvasRef}
           style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain'
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
           }}
         />
       </div>
