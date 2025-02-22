@@ -3,10 +3,10 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 
 // Get the project root directory
-const projectRoot = path.resolve(__dirname, '..');
+const projectRoot = path.resolve(__dirname, "..");
 
 export default defineConfig({
-  root: path.resolve(projectRoot, 'src'),
+  root: path.resolve(projectRoot, "src"),
   plugins: [react()],
   css: {
     postcss: path.resolve(__dirname, "./postcss.config.js"),
@@ -17,7 +17,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: path.resolve(projectRoot, 'dist'),
-    emptyOutDir: true
-  }
+    outDir: path.resolve(projectRoot, "dist"),
+    emptyOutDir: true,
+  },
 });

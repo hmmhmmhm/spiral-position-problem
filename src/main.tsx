@@ -1,11 +1,11 @@
 import "./main.css";
 import { createRoot } from "react-dom/client";
-import CoordinateVisualizer from "./components/coordinate-visualizer";
+import SpiralViewer from "./components/spiral-viewer";
 
 function App() {
   return (
     <div className="min-h-screen bg-black p-4">
-      <CoordinateVisualizer />
+      <SpiralViewer />
     </div>
   );
 }

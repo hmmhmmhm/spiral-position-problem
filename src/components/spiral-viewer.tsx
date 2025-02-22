@@ -1,5 +1,5 @@
 import { useState } from "react";
-import PixelMap from "./pixel-map";
+import GridCanvas from "./grid-canvas";
 import { ScrollArea } from "./ui/scroll-area";
 import { getCoordinates, getNFromCoordinates } from "@/lib/gcode/spiral";
 
@@ -9,7 +9,7 @@ const getLayerColor = (layer: number) => {
   return `rgba(255, 255, 255, ${opacity})`;
 };
 
-export default function CoordinateVisualizer() {
+export default function SpiralViewer() {
   const [currentCoordinate, setCurrentCoordinate] = useState(1);
   const [coordinatesHistory, setCoordinatesHistory] = useState<number[]>([1]);
   const [highlightedCoordinate, setHighlightedCoordinate] = useState<
@@ -52,7 +52,7 @@ export default function CoordinateVisualizer() {
       <div className="flex flex-col lg:flex-row lg:space-x-4 lg:h-[calc(100vh-2rem)]">
         <div className="w-full lg:w-3/5 bg-black rounded-lg shadow-lg p-4 flex-none overflow-hidden">
           <div className="w-full h-full min-h-[600px]">
-            <PixelMap
+            <GridCanvas
               gridRange={gridRange}
               highlightCoordinates={coordinatesHistory.map((n) => ({
                 coord: getCoordinates(n),

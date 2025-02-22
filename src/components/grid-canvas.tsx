@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-export interface PixelMapProps {
+export interface GridCanvasProps {
   gridSize?: number;
   canvasSize?: number;
   padding?: number;
@@ -11,11 +11,11 @@ export interface PixelMapProps {
   }>;
 }
 
-export default function PixelMap({
+export default function GridCanvas({
   gridRange = 7,
   padding = 40,
   highlightCoordinates,
-}: PixelMapProps) {
+}: GridCanvasProps) {
   // 그리드 범위에 따라 동적으로 크기 조절
   const baseGridSize = 50;
   const baseCanvasSize = 800;
