@@ -6,6 +6,7 @@ import path from "path";
 const projectRoot = path.resolve(__dirname, '..');
 
 export default defineConfig({
+  root: path.resolve(projectRoot, 'src'),
   plugins: [react()],
   css: {
     postcss: path.resolve(__dirname, "./postcss.config.js"),
@@ -15,4 +16,8 @@ export default defineConfig({
       "@": path.resolve(projectRoot, "./src"),
     },
   },
+  build: {
+    outDir: path.resolve(projectRoot, 'dist'),
+    emptyOutDir: true
+  }
 });
