@@ -198,7 +198,7 @@ export default function PixelMap({
     // 2. 하이라이트된 좌표들의 격자 패턴을 그립니다
     if (highlightCoordinates) {
       for (let i = 0; i < highlightCoordinates.length; i++) {
-        const { coord, color } = highlightCoordinates[i];
+        const { coord, color } = highlightCoordinates[i]!;
         const x = Math.floor(centerX + coord.x * gridSize - gridSize / 2);
         const y = Math.floor(centerY - coord.y * gridSize - gridSize / 2);
 
@@ -257,20 +257,20 @@ export default function PixelMap({
     if (highlightCoordinates && highlightCoordinates.length > 0) {
       // 시작점 그리기 (첫 번째 좌표가 0,0이 아닐 때만)
       if (highlightCoordinates.length > 1) {
-        const firstCoord = highlightCoordinates[0].coord;
-        const startX = centerX + firstCoord.x * gridSize;
-        const startY = centerY - firstCoord.y * gridSize;
+        const firstCoord = highlightCoordinates[0]?.coord;
+        const startX = centerX + firstCoord!.x * gridSize;
+        const startY = centerY - firstCoord!.y * gridSize;
         drawStartPoint(ctx, startX, startY);
       }
 
       for (let i = 0; i < highlightCoordinates.length; i++) {
-        const { coord } = highlightCoordinates[i];
+        const { coord } = highlightCoordinates[i]!;
 
         // 이전 좌표와 현재 좌표 사이에 화살표 그리기
         if (i > 0) {
-          const prevCoord = highlightCoordinates[i - 1].coord;
-          const prevX = centerX + prevCoord.x * gridSize;
-          const prevY = centerY - prevCoord.y * gridSize;
+          const prevCoord = highlightCoordinates[i - 1]?.coord;
+          const prevX = centerX + prevCoord!.x * gridSize;
+          const prevY = centerY - prevCoord!.y * gridSize;
           const currX = centerX + coord.x * gridSize;
           const currY = centerY - coord.y * gridSize;
 

@@ -11,16 +11,17 @@ export const getNFromCoordinates = (x: number, y: number): number => {
 
   // Calculate the squared sum of coordinates
   const m = x * x + y * y;
-  // Calculate s(m-1) to find offset
-  const s_m_minus_1 = m > 0 ? s(m - 1) : 0;
+
+  // Calculate countLatticePoints(m-1) to find offset
+  const s_m_minus_1 = m > 0 ? countLatticePoints(m - 1) : 0;
 
   // Retrieve all lattice points on the circle x^2 + y^2 = m
   const points = getPoints(m);
   let count = 0;
+
   // Count how many points have a greater angle
-  for (const [px, py] of points) {
-    if (isAngleGreater(px, py, x, y)) count++;
-  }
+  for (const [px, py] of points) if (isAngleGreater(px, py, x, y)) count++;
+
   const k = count + 1;
 
   // Return the computed index n
@@ -48,7 +49,7 @@ export const getCoordinates = (n: number): { x: number; y: number } => {
 
   while (low < high) {
     const mid = Math.floor((low + high) / 2);
-    if (s(mid) < n) {
+    if (countLatticePoints(mid) < n) {
       low = mid + 1;
     } else {
       high = mid;
@@ -57,7 +58,7 @@ export const getCoordinates = (n: number): { x: number; y: number } => {
   const m = low;
 
   // Calculate s(m-1) to determine the offset
-  const s_m_minus_1 = m > 0 ? s(m - 1) : 0;
+  const s_m_minus_1 = m > 0 ? countLatticePoints(m - 1) : 0;
   const k = n - s_m_minus_1;
 
   // Get list of points where x^2 + y^2 = m
@@ -71,7 +72,7 @@ export const getCoordinates = (n: number): { x: number; y: number } => {
   });
 
   // Return the k-th point
-  const [x, y] = points[k - 1];
+  const [x, y] = points[k - 1]!;
   return { x, y };
 };
 
@@ -81,7 +82,7 @@ export const getCoordinates = (n: number): { x: number; y: number } => {
  * @param {number} m - The value m.
  * @returns {number} The number of lattice points.
  */
-function s(m: number): number {
+function countLatticePoints(m: number): number {
   if (m < 0) return 0;
   const r = Math.floor(Math.sqrt(m));
   let count = 0;

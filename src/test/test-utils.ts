@@ -9,8 +9,7 @@ export const checkMaximumRange = ({
   precisionMeters?: number;
 }) => {
   const { x, y } = getCoordinates(n);
-
-  let max = Math.max(
+  const max = Math.max(
     Math.abs(x * precisionMeters),
     Math.abs(y * precisionMeters)
   );
