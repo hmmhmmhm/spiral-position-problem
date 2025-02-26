@@ -35,3 +35,9 @@
 bun install
 bun dev
 ```
+
+## 실험 명령어
+
+- npx tsx src/data/generate-words.ts
+- npx tsx src/data/refine-words.ts
+- npx tsx src/data/analyze-words.ts

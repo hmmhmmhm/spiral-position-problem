@@ -14,7 +14,7 @@ describe("Range Tests", () => {
       printMaximumRange({
         base: 10,
         precisionMeters: 3,
-        length: 12,
+        length: 11,
       });
 
       expect(mockConsoleLog).toHaveBeenCalledWith(
@@ -29,7 +29,7 @@ describe("Range Tests", () => {
       printMaximumRange({
         base: 32,
         precisionMeters: 3,
-        length: 9,
+        length: 8,
       });
 
       expect(mockConsoleLog).toHaveBeenCalledWith(

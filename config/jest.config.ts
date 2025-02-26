@@ -15,23 +15,29 @@ import type { Config } from "@jest/types";
  *   that allow stub out resources with a single module.
  */
 const config: Config.InitialOptions = {
-  preset: "ts-jest",
+  preset: "ts-jest/presets/default-esm",
   testEnvironment: "node",
-  roots: ["<rootDir>/src"],
+  roots: ["../src"],
   transform: {
     "^.+\\.tsx?$": [
       "ts-jest",
       {
         useESM: true,
+        tsconfig: "<rootDir>/../tsconfig.json"
       },
     ],
   },
-  transformIgnorePatterns: ["node_modules/(?!(mugunghwa)/)"],
+  transformIgnorePatterns: [
+    "node_modules/(?!chalk)/"
+  ],
   testRegex: ".*\\.test\\.tsx?$",
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
+  extensionsToTreatAsEsm: [".ts", ".tsx"],
   moduleNameMapper: {
-    "\\.(css|less|scss|sass)$": "identity-obj-proxy",
-  },
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+    "^chalk$": "<rootDir>/../src/test/__mocks__/chalk.ts",
+    "\\.(css|less|scss|sass)$": "identity-obj-proxy"
+  }
 };
 
 export default config;
