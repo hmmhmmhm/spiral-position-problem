@@ -44,7 +44,7 @@ for (const file of files) {
   if (Array.isArray(content)) {
     totalArrays++;
     if (content.length === 0) {
-      // 파일명에서 인덱스 추출
+      // Extract index from filename
       const fileName = path.basename(file);
       const match = fileName.match(new RegExp(`${prefix}-(\\d+)\\.json`));
       if (match && match[1] !== undefined) {
@@ -59,11 +59,11 @@ for (const file of files) {
           wordCount[word]++;
         } else {
           wordCount[word] = 1;
-          // 고유 단어만 길이 통계에 추가
+          // Add only unique words to length statistics
           const wordLength = word.length;
           wordLengthStats[wordLength] = (wordLengthStats[wordLength] || 0) + 1;
 
-          // 길이별 단어 목록 저장
+          // Save a list of words by length
           if (!wordsByLength[wordLength]) {
             wordsByLength[wordLength] = new Set();
           }
@@ -97,7 +97,7 @@ console.log(
 
 console.log(`Duplicate words: ${duplicateWords.size}`);
 
-// 단어 길이 통계 출력
+// Output word length statistics
 console.log("\nWord length statistics:");
 const sortedLengths = Object.keys(wordLengthStats)
   .map(Number)
@@ -112,7 +112,7 @@ for (const length of sortedLengths) {
   const percentage = ((count / totalUniqueWords) * 100).toFixed(1);
   let output = `${length} characters: ${count} words (${percentage}%)`;
 
-  // 단어가 1개인 경우 해당 단어 표시
+  // Display the word if there's only one word of this length
   const wordsOfLength = wordsByLength[length];
   if (count === 1 && wordsOfLength && wordsOfLength.size === 1) {
     const word = Array.from(wordsOfLength)[0];
@@ -122,12 +122,48 @@ for (const length of sortedLengths) {
   console.log(output);
 }
 
-// 고유 단어 수집 및 저장
+// Function to check if a word contains Korean characters
+const isKorean = (word: string): boolean => {
+  const koreanRegex = /^[가-힣ㄱ-ㅎㅏ-ㅣ\s]+$/;
+  return koreanRegex.test(word);
+};
+
+// Collect and save unique words
 console.log(chalk.green("\nCollecting unique words..."));
-const uniqueWords = Array.from(allWords);
+let uniqueWords = Array.from(allWords);
+
+if (language === "Korean") {
+  // If the dataset is Korean, remove all non-Korean words from unique words
+  {
+    const koreanWords = uniqueWords.filter((word) => isKorean(word));
+    console.log(
+      `Filtered out ${
+        uniqueWords.length - koreanWords.length
+      } non-Korean words.`
+    );
+    uniqueWords.length = 0;
+    uniqueWords.push(...koreanWords);
+  }
+
+  // Remove words that exceed 5 characters
+  {
+    const fiveLetterWords = uniqueWords.filter((word) => word.length <= 5);
+    console.log(
+      `Filtered out ${
+        uniqueWords.length - fiveLetterWords.length
+      } words with length other than 5.`
+    );
+    uniqueWords.length = 0;
+    uniqueWords.push(...fiveLetterWords);
+  }
+}
+
 console.log(`Collected ${uniqueWords.length} unique words.`);
 
-// 수집된 단어를 JSON 파일로 저장
+// Sort words by length
+uniqueWords = uniqueWords.sort((a, b) => a.length - b.length);
+
+// Save collected words to a JSON file
 if (uniqueWords.length !== 0) {
   const outputFileName = `collected-${prefix}.json`;
   const outputPath = path.join(
