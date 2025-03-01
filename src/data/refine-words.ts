@@ -61,7 +61,7 @@ for (let i = 0; i < questions.length; i++) {
 
   const filePath = resolve(
     __dirname,
-    `../../data/${language}-Wordset/refined-${i + 1}.json`
+    `../../data/${language}-Wordset/refined/refined-${i + 1}.json`
   );
 
   if (!fs.existsSync(filePath)) {
@@ -108,7 +108,7 @@ async function processBatch(batch: { question: string; index: number }[]) {
         fs.existsSync(
           resolve(
             __dirname,
-            `../../data/${language}-Wordset/refined-${index}.json`
+            `../../data/${language}-Wordset/refined/refined-${index}.json`
           )
         )
       ) {
@@ -180,7 +180,7 @@ ${beforeData}`;
         fs.writeFileSync(
           resolve(
             __dirname,
-            `../../data/${language}-Wordset/refined-${index}.json`
+            `../../data/${language}-Wordset/refined/refined-${index}.json`
           ),
           JSON.stringify(data)
         );
@@ -204,7 +204,7 @@ ${beforeData}`;
           fs.writeFileSync(
             resolve(
               __dirname,
-              `../../data/${language}-Wordset/refined-failed-${index}.txt`
+              `../../data/${language}-Wordset/refined/refined-failed-${index}.txt`
             ),
             parseFailedText
           );

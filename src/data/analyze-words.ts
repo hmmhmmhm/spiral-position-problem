@@ -28,21 +28,11 @@ const wordLengthStats: { [key: number]: number } = {};
 const wordsByLength: { [key: number]: Set<string> } = {};
 const emptyArrayIndices: number[] = [];
 
-// Add tracking for non-Korean characters
-const wordsWithNonKoreanChars = new Set<string>();
-let nonKoreanCharCount = 0;
-
-// Function to check if a word contains only Korean characters
-function isKoreanOnly(word: string): boolean {
-  // Korean Unicode range: AC00-D7A3 (Hangul syllables) and 1100-11FF (Hangul Jamo)
-  const koreanRegex = /^[\uAC00-\uD7A3\u1100-\u11FF\s]+$/;
-  return koreanRegex.test(word);
-}
-
 const pattern = path.join(
   process.cwd(),
   "data",
   `${language}-Wordset`,
+  prefix,
   `${prefix}-*.json`
 );
 const files = glob.sync(pattern);
@@ -64,12 +54,6 @@ for (const file of files) {
     }
     for (const word of content) {
       if (typeof word === "string") {
-        // Check for non-Korean characters if language is Korean
-        if (language === "Korean" && !isKoreanOnly(word)) {
-          wordsWithNonKoreanChars.add(word);
-          nonKoreanCharCount++;
-        }
-        
         if (wordCount[word]) {
           duplicateWords.add(word);
           wordCount[word]++;
@@ -113,12 +97,6 @@ console.log(
 
 console.log(`Duplicate words: ${duplicateWords.size}`);
 
-// Display non-Korean character statistics if language is Korean
-if (language === "Korean") {
-  console.log(`\nWords with non-Korean characters: ${wordsWithNonKoreanChars.size}`);
-  console.log(`Total non-Korean character occurrences: ${nonKoreanCharCount}`);
-}
-
 // 단어 길이 통계 출력
 console.log("\nWord length statistics:");
 const sortedLengths = Object.keys(wordLengthStats)
@@ -146,25 +124,19 @@ for (const length of sortedLengths) {
 
 // 고유 단어 수집 및 저장
 console.log(chalk.green("\nCollecting unique words..."));
-let uniqueWords = Array.from(allWords);
-
-// Filter out words with non-Korean characters if language is Korean
-if (language === "Korean") {
-  const originalCount = uniqueWords.length;
-  uniqueWords = uniqueWords.filter(word => !wordsWithNonKoreanChars.has(word));
-  console.log(`Filtered out ${originalCount - uniqueWords.length} words with non-Korean characters.`);
-}
-
+const uniqueWords = Array.from(allWords);
 console.log(`Collected ${uniqueWords.length} unique words.`);
 
 // 수집된 단어를 JSON 파일로 저장
-const outputFileName = `collected-${prefix}.json`;
-const outputPath = path.join(
-  process.cwd(),
-  "data",
-  `${language}-Wordset`,
-  outputFileName
-);
+if (uniqueWords.length !== 0) {
+  const outputFileName = `collected-${prefix}.json`;
+  const outputPath = path.join(
+    process.cwd(),
+    "data",
+    `${language}-Wordset`,
+    outputFileName
+  );
 
-await fs.writeFile(outputPath, JSON.stringify(uniqueWords, null, 2), "utf-8");
-console.log(chalk.green(`Successfully saved unique words to ${outputPath}`));
+  await fs.writeFile(outputPath, JSON.stringify(uniqueWords, null, 2), "utf-8");
+  console.log(chalk.green(`Successfully saved unique words to ${outputPath}`));
+}

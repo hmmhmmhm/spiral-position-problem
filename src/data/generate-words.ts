@@ -59,7 +59,7 @@ async function processBatch(batch: { question: string; index: number }[]) {
         fs.existsSync(
           resolve(
             __dirname,
-            `../../data/${language}-Wordset/generated-${index}.json`
+            `../../data/${language}-Wordset/generated/generated-${index}.json`
           )
         )
       ) {
@@ -128,7 +128,7 @@ ${question}
           fs.writeFileSync(
             resolve(
               __dirname,
-              `../../data/${language}-Wordset/generated-failed-${index}.txt`
+              `../../data/${language}-Wordset/generated/generated-failed-${index}.txt`
             ),
             cleanText
           );
@@ -138,7 +138,7 @@ ${question}
         fs.writeFileSync(
           resolve(
             __dirname,
-            `../../data/${language}-Wordset/generated-${index}.json`
+            `../../data/${language}-Wordset/generated/generated-${index}.json`
           ),
           JSON.stringify(data)
         );
@@ -162,7 +162,7 @@ ${question}
           fs.writeFileSync(
             resolve(
               __dirname,
-              `../../data/${language}-Wordset/generated-failed-${index}.txt`
+              `../../data/${language}-Wordset/generated/generated-failed-${index}.txt`
             ),
             parseFailedText
           );
@@ -185,7 +185,7 @@ for (let i = 0; i < questions.length; i++) {
 
   const filePath = resolve(
     __dirname,
-    `../../data/${language}-Wordset/generated-${i + 1}.json`
+    `../../data/${language}-Wordset/generated/generated-${i + 1}.json`
   );
 
   if (!fs.existsSync(filePath)) {
