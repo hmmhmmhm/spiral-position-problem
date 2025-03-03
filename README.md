@@ -38,6 +38,7 @@ bun dev
 
 ## 실험 명령어
 
-- npx tsx src/data/generate-words.ts
-- npx tsx src/data/refine-words.ts
-- npx tsx src/data/analyze-words.ts
+- npx tsx ./data/generate-words.ts
+- npx tsx ./data/refine-words.ts
+- npx tsx ./data/analyze-words.ts
+- npx tsx ./data/assemble-region-1.ts

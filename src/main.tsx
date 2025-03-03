@@ -7,6 +7,7 @@ import {
   calculateCoordinateDiff,
   reconstructCoordinateDiff,
 } from "./lib/gcode/spherical";
+import { encode } from "./lib/gcode";
 
 declare let window: any;
 
@@ -17,6 +18,7 @@ function App() {
     window.getNFromCoordinates = getNFromCoordinates;
     window.calculateCoordinateDiff = calculateCoordinateDiff;
     window.reconstructCoordinateDiff = reconstructCoordinateDiff;
+    window.encode = encode;
   }, []);
 
   return (
