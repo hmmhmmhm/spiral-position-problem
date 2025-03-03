@@ -24,3 +24,4 @@ dist-ssr
 *.sw?
 generated-failed-*.txt
 .env
+data/Region-Dataset/Region-Level-2/cities500.txt

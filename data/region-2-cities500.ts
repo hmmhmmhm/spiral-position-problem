@@ -1,9 +1,58 @@
 import * as fs from "fs";
 import path from "path";
 
-console.log("Starting cities500 data processing script...");
+const inputFile = path.join(
+  process.cwd(),
+  "data",
+  "Region-Dataset",
+  "Region-Level-2",
+  "cities500.txt"
+);
+const outputFile = path.join(
+  process.cwd(),
+  "data",
+  "Region-Dataset",
+  "Region-Level-2",
+  "cities500.json"
+);
 
-// cities5000.txt를 처리하는 함수
+console.log("Starting cities500 data processing script...");
+main().catch((error) => {
+  console.error("Error in main execution:", error);
+  console.error(error.stack);
+});
+
+async function main() {
+  if (!fs.existsSync(inputFile)) {
+    console.error(`Input file not found: ${inputFile}`);
+    console.error(
+      "Please download the cities500.txt file from here: https://download.geonames.org/export/dump/cities500.zip"
+    );
+    return;
+  }
+
+  console.log("Starting main function...");
+  console.log(`Cities input file path: ${inputFile}`);
+  console.log(`Output file path: ${outputFile}`);
+
+  console.log("Step 1: Building alternate names database...");
+  // 1. alternateNames.txt를 LevelDB로 변환
+  const startTime1 = Date.now();
+  console.log(
+    `Alternate names DB built in ${(Date.now() - startTime1) / 1000} seconds`
+  );
+
+  console.log("Step 2: Processing cities file...");
+  // 2. cities5000.txt 처리
+  const startTime2 = Date.now();
+  await processCitiesFile(inputFile, outputFile);
+  console.log(
+    `Cities file processed in ${(Date.now() - startTime2) / 1000} seconds`
+  );
+
+  console.log("All processing complete!");
+}
+
 async function processCitiesFile(
   inputFile: string,
   outputFile: string
@@ -16,7 +65,7 @@ async function processCitiesFile(
   const lines = fileContent.split("\n");
   console.log(`File read complete. Total lines: ${lines.length}`);
 
-  const cityMap = new Map<string, any>(); // 중복된 이름을 관리하기 위한 Map
+  const cityMap = new Map<string, any>();
   console.log("Starting to process each city line...");
 
   let processedCount = 0;
@@ -38,21 +87,21 @@ async function processCitiesFile(
     }
 
     const [
-      geonameId, // 0
-      name, // 1: 기본 이름
-      asciiName, // 2
-      alternateNamesRaw, // 3: 사용 안 함 (LevelDB에서 조회)
-      latitude, // 4
-      longitude, // 5
-      featureClass, // 6
-      featureCode, // 7
-      countryCode, // 8
-      cc2, // 9
-      admin1Code, // 10
-      admin2Code, // 11
-      admin3Code, // 12
-      admin4Code, // 13
-      population, // 14: 인구수
+      geonameId,
+      name,
+      asciiName,
+      alternateNamesRaw,
+      latitude,
+      longitude,
+      featureClass,
+      featureCode,
+      countryCode,
+      cc2,
+      admin1Code,
+      admin2Code,
+      admin3Code,
+      admin4Code,
+      population,
     ] = columns;
 
     const lat = parseFloat(latitude);
@@ -65,7 +114,7 @@ async function processCitiesFile(
     }
 
     const cityName = asciiName || name;
-    // 중복된 이름 처리: 인구수가 더 큰 도시 선택
+    // Duplicate city name handling: Select city with larger population
     if (cityMap.has(cityName)) {
       duplicateCount++;
       const existingCity = cityMap.get(cityName)!;
@@ -96,14 +145,23 @@ async function processCitiesFile(
     }
   }
 
-  // Map의 값을 배열로 변환
+  // Converting city map to array
   console.log("\nConverting city map to array...");
   const cities = Array.from(cityMap.values());
   console.log(`Total unique cities: ${cities.length}`);
 
-  // JSON으로 저장
   console.log(`Writing JSON output to: ${outputFile}`);
-  const jsonContent = JSON.stringify(cities, null, 2);
+  const jsonContent = JSON.stringify(
+    // Remove population field
+    cities.map((city) => ({
+      name: city.name,
+      code: city.code,
+      lat: city.lat,
+      long: city.long,
+    })),
+    null,
+    2
+  );
   await fs.promises.writeFile(outputFile, jsonContent, "utf8");
 
   console.log(`\n\nProcessing statistics:`);
@@ -114,49 +172,3 @@ async function processCitiesFile(
   console.log(`- Cities replaced due to higher population: ${replacedCount}`);
   console.log(`\n\nProcessed ${cities.length} unique cities.`);
 }
-
-// 실행 함수
-async function main() {
-  console.log("Starting main function...");
-  const inputFile = path.join(
-    process.cwd(),
-    "data",
-    "Region-Dataset",
-    "Region-Level-2",
-    "cities500.txt"
-  );
-  console.log(`Cities input file path: ${inputFile}`);
-
-  const outputFile = path.join(
-    process.cwd(),
-    "data",
-    "Region-Dataset",
-    "Region-Level-2",
-    "cities500.json"
-  );
-  console.log(`Output file path: ${outputFile}`);
-
-  console.log("Step 1: Building alternate names database...");
-  // 1. alternateNames.txt를 LevelDB로 변환
-  const startTime1 = Date.now();
-  console.log(
-    `Alternate names DB built in ${(Date.now() - startTime1) / 1000} seconds`
-  );
-
-  console.log("Step 2: Processing cities file...");
-  // 2. cities5000.txt 처리
-  const startTime2 = Date.now();
-  await processCitiesFile(inputFile, outputFile);
-  console.log(
-    `Cities file processed in ${(Date.now() - startTime2) / 1000} seconds`
-  );
-
-  console.log("All processing complete!");
-}
-
-// 실행
-console.log("Script execution started");
-main().catch((error) => {
-  console.error("Error in main execution:", error);
-  console.error(error.stack);
-});
