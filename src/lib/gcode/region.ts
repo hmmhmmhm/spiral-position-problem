@@ -1,11 +1,36 @@
-export const findClosestRegion = async ({
-  lat,
-  lng,
-}: {
+export interface Region {
+  name: string;
+  code: string;
   lat: number;
-  lng: number;
-}) => {
-  const { region1 } = await import("../../data/region/region-1");
+  long: number;
+}
+
+export const findClosestRegion = async (
+  {
+    lat,
+    lng,
+  }: {
+    lat: number;
+    lng: number;
+  },
+  options?: {
+    regionLevel?: number;
+  }
+) => {
+  const { regionLevel = 1 } = options ?? {};
+
+  let regions: Region[] = [];
+  if (regionLevel === 1) {
+    const region1 = (await import("../../../data/Region/region-1.json"))
+      .default as Region[];
+    regions = region1;
+  } else if (regionLevel == 2) {
+    const region2 = (await import("../../../data/Region/region-2.json"))
+      .default as Region[];
+    regions = region2;
+  } else {
+    throw new Error(`Invalid region level: ${regionLevel}`);
+  }
 
   // Find the region that contains the target
   let closestRegion: {
@@ -17,7 +42,7 @@ export const findClosestRegion = async ({
 
   let closestRegionDistance = Infinity;
 
-  for (const region of region1) {
+  for (const region of regions) {
     // Calculate the distance between the target point and the region's center
     const distance = calculateDistance(lat, lng, region.lat, region.long);
 

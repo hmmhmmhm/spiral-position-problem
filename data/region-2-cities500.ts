@@ -72,6 +72,7 @@ async function processCitiesFile(
   let skippedCount = 0;
   let duplicateCount = 0;
   let replacedCount = 0;
+  let longNameCount = 0;
 
   for (const line of lines) {
     if (!line.trim()) {
@@ -113,7 +114,18 @@ async function processCitiesFile(
       continue;
     }
 
-    const cityName = asciiName || name;
+    let cityName = asciiName || name;
+
+    // Clean up city name
+    cityName = cityName.replace(/-dong$/, "").replace("-", "");
+
+    // Skip cities with names longer than 20 characters
+    if (cityName.length > 20) {
+      longNameCount++;
+      skippedCount++;
+      continue;
+    }
+
     // Duplicate city name handling: Select city with larger population
     if (cityMap.has(cityName)) {
       duplicateCount++;
@@ -170,5 +182,6 @@ async function processCitiesFile(
   console.log(`- Lines skipped: ${skippedCount}`);
   console.log(`- Duplicate city names found: ${duplicateCount}`);
   console.log(`- Cities replaced due to higher population: ${replacedCount}`);
+  console.log(`- Cities excluded due to name length > 20: ${longNameCount}`);
   console.log(`\n\nProcessed ${cities.length} unique cities.`);
 }

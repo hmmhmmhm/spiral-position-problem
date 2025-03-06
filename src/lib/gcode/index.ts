@@ -4,6 +4,7 @@ import {
   reconstructCoordinateDiff,
 } from "./spherical";
 import { getCoordinates, getNFromCoordinates } from "./spiral";
+import { encodeByWordSet, SupportedLanguage } from "./wordset";
 
 /**
  * Encodes a target point based on a center point using the spiral algorithm.
@@ -19,9 +20,10 @@ export const encode = async (
     center?: { lat: number; lng: number };
     regionLevel?: number;
     precisionMeters?: number;
+    language?: SupportedLanguage;
   }
 ) => {
-  let { center, precisionMeters } = options ?? {};
+  let { center, precisionMeters, regionLevel, language } = options ?? {};
 
   let code: string | null = null;
   let encoded = "";
@@ -29,10 +31,16 @@ export const encode = async (
   // If center is provided, encode based on the center
   if (!center) {
     // If center is not provided, find the closest region
-    const region = await findClosestRegion(target);
+    const region = await findClosestRegion(target, { regionLevel });
     if (!region) throw new Error("Could not find closest region");
 
-    code = region.code;
+    if (regionLevel === 1) {
+      // Use code for region 1
+      code = region.code;
+    } else {
+      // Use name for region 2 and above
+      code = region.name;
+    }
     center = { lat: region.lat, lng: region.lng };
   }
 
@@ -42,8 +50,13 @@ export const encode = async (
   // Get n from diff
   const n = getNFromCoordinates(diff.lat, diff.lng);
 
-  // Encoded (Base 32)
-  encoded = n.toString(32).toUpperCase();
+  if (regionLevel === 1) {
+    // Encoded (Base 32)
+    encoded = n.toString(32).toUpperCase();
+  } else {
+    // Encoded By Word Set
+    encoded = await encodeByWordSet({ n, language });
+  }
 
   // Add code if provided
   if (code && code.length > 0) encoded = `${code}-${encoded}`;
